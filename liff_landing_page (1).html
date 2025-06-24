@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>doTERRA Referral</title>
+  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+</head>
+<body>
+  <h2>กำลังโหลดข้อมูลจาก LINE...</h2>
+  <script>
+    async function main() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get("ref") || "UNKNOWN";
+
+      await liff.init({ liffId: "2006525334-zxDLyZdx" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      const profile = await liff.getProfile();
+      const idToken = liff.getIDToken();
+      const userId = profile.userId;
+      const name = profile.displayName;
+      const picture = profile.pictureUrl;
+
+      const payload = {
+        userId: userId,
+        name: name,
+        picture: picture,
+        refCode: ref,
+        idToken: idToken,
+      };
+
+      fetch("https://script.google.com/u/0/home/projects/16H5XULEDG0_hWg8abpCtneTmwO-8jVX4AT8D_IuHAZNG4BGzG-qfwXi5/edit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }).then(res => res.text()).then(txt => {
+        document.body.innerHTML = "<h2>ยินดีต้อนรับ " + name + "!</h2><p>ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว</p>";
+      }).catch(err => {
+        document.body.innerHTML = "<p>เกิดข้อผิดพลาดในการส่งข้อมูล: " + err + "</p>";
+      });
+    }
+
+    main();
+  </script>
+</body>
+</html>
