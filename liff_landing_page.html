@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>doTERRA Referral Tracker</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <h2>กำลังเข้าสู่ระบบ...</h2>
+  <script>
+    async function main() {
+      await liff.init({ liffId: "YOUR_LIFF_ID" }); // 🔁 เปลี่ยนตรงนี้เมื่อ deploy จริง
+      if (!liff.isLoggedIn()) liff.login();
+      const profile = await liff.getProfile();
+      const userId = profile.userId;
+      const displayName = profile.displayName;
+      const ref = new URLSearchParams(window.location.search).get("ref") || "UNKNOWN";
+
+      // ส่งข้อมูลไปยัง webhook ของ Apps Script
+      fetch("YOUR_WEBHOOK_URL", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          events: [{
+            type: "follow",
+            source: { userId },
+            refCode: ref
+          }]
+        })
+      }).then(() => {
+        document.body.innerHTML = `<h3>ยินดีต้อนรับคุณ ${displayName}</h3><p>เข้าสู่ระบบสำเร็จ! ระบบจะส่งข้อความให้คุณทาง LINE</p>`;
+      }).catch(err => {
+        console.error(err);
+        document.body.innerHTML = "<p>เกิดข้อผิดพลาด กรุณาลองใหม่</p>";
+      });
+    }
+    main();
+  </script>
+</body>
+</html>
